@@ -203,6 +203,43 @@ class DataProcessor(object):
         lines.append(line)
       return lines
 
+class CovidProcessor(DataProcessor):
+  """Processor for CORD-19 dataset (and additional documents)"""
+
+  def get_train_examples(self, data_dir):
+    """See base class"""
+    return self._create_examples(data_dir, 'train')
+
+  def get_dev_examples(self, data_dir):
+    """See base class"""
+    return self._create_examples(data_dir, 'dev')
+
+  def get_test_examples(self, data_dir):
+    """See base class"""
+    return self._create_examples(data_dir, 'test')
+
+  def get_labels(self):
+    """See base class"""
+    return ['pos', 'neg']
+    #return ['ligand-related', 'not-ligand-related']
+
+  def _create_examples(self, data_dir, set_type)
+    """Creates examples for different sets"""
+    
+    examples = []
+
+    for file_label in ['pos', 'neg']:
+      filename = '{}_{}.txt'.format(set_type, file_label)
+      lines = open(os.path.join(data_dir, filename), 'r').read().splitlines()
+ 
+      for i, line in enumerate(lines):
+        guid = '{}-{}-{}'.format(set_type, file_label, i)
+        text_a = tokenization.convert_to_unicode(line)
+        label = file_label
+        examples.append(
+            InputExample(guid=guid, text_a=text_a, text_b=None, label=label))
+
+    return examples
 
 class XnliProcessor(DataProcessor):
   """Processor for the XNLI data set."""
