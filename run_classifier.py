@@ -231,7 +231,8 @@ class CordProcessor(DataProcessor):
 
     for file_label in ['pos', 'neg']:
       filename = '{}_{}.txt'.format(set_type, file_label)
-      lines = open(os.path.join(data_dir, filename), 'r').read().splitlines()
+      lines = open(os.path.join(data_dir, filename),
+                   'r', encoding='utf-8').read().splitlines()
  
       for i, line in enumerate(lines):
         guid = '{}-{}-{}'.format(set_type, file_label, i)
