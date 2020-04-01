@@ -21,6 +21,7 @@ from __future__ import print_function
 import collections
 import csv
 import os
+import random
 import modeling
 import optimization
 import tokenization
@@ -32,32 +33,32 @@ FLAGS = flags.FLAGS
 
 ## Required parameters
 flags.DEFINE_string(
-    "data_dir", None,
+    "data_dir", 'covid_data',
     "The input data dir. Should contain the .tsv files (or other data files) "
     "for the task.")
 
 flags.DEFINE_string(
-    "bert_config_file", None,
+    "bert_config_file", 'biobert_base_v1.1/bert_config.json',
     "The config json file corresponding to the pre-trained BERT model. "
     "This specifies the model architecture.")
 
-flags.DEFINE_string("task_name", None, "The name of the task to train.")
+flags.DEFINE_string("task_name", 'cord', "The name of the task to train.")
 
-flags.DEFINE_string("vocab_file", None,
+flags.DEFINE_string("vocab_file", 'biobert_base_v1.1/vocab.txt',
                     "The vocabulary file that the BERT model was trained on.")
 
 flags.DEFINE_string(
-    "output_dir", None,
+    "output_dir", 'model_output',
     "The output directory where the model checkpoints will be written.")
 
 ## Other parameters
 
 flags.DEFINE_string(
-    "init_checkpoint", None,
+    "init_checkpoint", 'biobert_base_v1.1/model.ckpt-1000000',
     "Initial checkpoint (usually from a pre-trained BERT model).")
 
 flags.DEFINE_bool(
-    "do_lower_case", True,
+    "do_lower_case", False,
     "Whether to lower case the input text. Should be True for uncased "
     "models and False for cased models.")
 
@@ -203,8 +204,8 @@ class DataProcessor(object):
         lines.append(line)
       return lines
 
-class CovidProcessor(DataProcessor):
-  """Processor for CORD-19 dataset (and additional documents)"""
+class CordProcessor(DataProcessor):
+  """Processor for CORD-19 dataset (and expanded documents)"""
 
   def get_train_examples(self, data_dir):
     """See base class"""
@@ -223,7 +224,7 @@ class CovidProcessor(DataProcessor):
     return ['pos', 'neg']
     #return ['ligand-related', 'not-ligand-related']
 
-  def _create_examples(self, data_dir, set_type)
+  def _create_examples(self, data_dir, set_type):
     """Creates examples for different sets"""
     
     examples = []
@@ -239,6 +240,7 @@ class CovidProcessor(DataProcessor):
         examples.append(
             InputExample(guid=guid, text_a=text_a, text_b=None, label=label))
 
+    random.shuffle(examples)
     return examples
 
 class XnliProcessor(DataProcessor):
@@ -821,6 +823,7 @@ def main(_):
   tf.logging.set_verbosity(tf.logging.INFO)
 
   processors = {
+      "cord": CordProcessor,
       "cola": ColaProcessor,
       "mnli": MnliProcessor,
       "mrpc": MrpcProcessor,
